@@ -113,38 +113,46 @@ $("#stopJourney").on('click', function(){
 //*********************************************************************************************************************************************************************
 //*********************************************************************************************************************************************************************
 
-function onCameraSuccess(position, imageURI) {
-    var myLat = position.coords.latitude;
-    var myLong = position.coords.longitude;
-    var time = position.timestamp;
-    var myLatLng = new google.maps.LatLng(myLat, myLong);
-    map.setCenter(myLatLng);
-    photoTracking_data.push(myLatLng);
-    photoTime_val.push(time);
-    last_values = [myLat, myLong];
-    myCoords.push(last_values);
+function onCameraSuccess(imageURI) {
+    // var myLat = position.coords.latitude;
+    // var myLong = position.coords.longitude;
+    // var time = position.timestamp;
+    // var myLatLng = new google.maps.LatLng(myLat, myLong);
+    // map.setCenter(myLatLng);
+    // photoTracking_data.push(myLatLng);
+    // photoTime_val.push(time);
+    // last_values = [myLat, myLong];
+    // myCoords.push(last_values);
 
-    var photoMarkers = new google.maps.Marker({
-        path: tracking_data,
-        strokeColor: "#FF0000",
-        strokeOpacity: 1.0,
-        strokeWeight: 2
-    });
-    photoMarkers.setMap(map);
+    // var photoMarkers = new google.maps.Marker({
+    //     path: tracking_data,
+    //     strokeColor: "#FF0000",
+    //     strokeOpacity: 1.0,
+    //     strokeWeight: 2
+    // });
+    // photoMarkers.setMap(map);
 
-    // var photo = {
-    //     uri: imageURI,
-    //     position: null
-    // }
-    alert("onCameraSuccess:" + imageURI);
-    addTrackPointToDB(journey_id, position);
-    addPhotoToDB(journey_id, position, photo_uri);
-    google.maps.event.addDomListener(window, 'load', onCameraSuccess); //https://developers.google.com/maps/documentation/javascript/examples/marker-simple
+    // alert("onCameraSuccess:" + imageURI);
+    // addTrackPointToDB(journey_id, position);
+    // addPhotoToDB(journey_id, position, photo_uri);
+    // google.maps.event.addDomListener(window, 'load', onCameraSuccess); //https://developers.google.com/maps/documentation/javascript/examples/marker-simple
+    // var pos = null;
+    alert('inside onCameraSuccess');
+    var onPositionSuccess = function(position){
+        alert("position: " + position + "ImageURI: " + imageURI);
+        addPhotoToDB(position, imageURI);
+    }
+    var onPositionError = function(error){
+        alert("onPositionError: " + error.message);
+    }
+    console.log('Going to call getCurrentPosition');
+    //Get position when user takes a photo.
+    navigator.geolocation.getCurrentPosition(onPositionSuccess, onPositionError);
 };
 
 
 function onCameraError(error) {
-    alert('Camera error');
+    alert('Camera error: ' + error.message);
 }
 
 // console.log($("#takePhoto")); //evaluates to the object itself
@@ -154,18 +162,15 @@ $("#takePhoto").on('click', function() {
         destinationType: Camera.DestinationType.FILE_URI,
         saveToPhotoAlbum: true
     });
-    var photoWatchId = null;
-    photoWatchId = navigator.geolocation.watchPosition(onCameraSuccess, onStartError, { // Start tracking
-    frequency: 30000,
-    // maximumAge: 3000,
-    // timeout: 5000,
-    enableHighAccuracy: true
-    });
-    var photoTracking_data = []; // Array containing GPS position objects for photo. There should only be one location per photo.
-
 });
 
 
+
+//*********************************************************************************************************************************************************************
+//*********************************************************************************************************************************************************************
+//*********************************************************************************************************************************************************************
+//*********************************************************************************************************************************************************************
+//*********************************************************************************************************************************************************************
 
 // function onGetCurrentPositionSuccess(position) {
 //     var element = document.getElementById('geolocation');

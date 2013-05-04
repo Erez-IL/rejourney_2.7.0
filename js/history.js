@@ -1,5 +1,4 @@
 
-
 // When the user views the history page
 $('#history').on('pageshow', function () {
     // alert('history page show');
@@ -36,8 +35,6 @@ $('#history').on('pageshow', function () {
         tx.executeSql('SELECT * FROM Journeys', [], querySuccess, errorCB);
     }, errorCB);
 });
-
-var current_journey = null;
 
 // When the user clicks a link to view journey info, set/change the photo_id attribute on the journey_info page.
 $(document).ready(function() {
