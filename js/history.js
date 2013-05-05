@@ -16,7 +16,7 @@ $('#history').on('pageshow', function () {
         // Iterate over all of the recorded journey, populating the list on the history page.
         for(var i=0; i<qtyJourneys; i++){
             var j = results.rows.item(i);
-            var el="<li><a href='#journey_info' class='journey_button' journey_id='" + j.id + "' data-ajax='false'>" + j.name + "</a></li>"
+            var el="<li><a href='#rejourney' class='journey_button' journey_id='" + j.id + "' data-ajax='false'>" + j.name + "</a></li>"
             $("#history_journeylist").append($(el));
             console.log('Appending qtyJourneys,' + el);
         }
@@ -40,8 +40,9 @@ $('#history').on('pageshow', function () {
 $(document).ready(function() {
     $("#history_journeylist").on('click', "a.journey_button", function(){
         // $("#journey_info").attr("photo_id", $(this).text());
-        // console.log("Clicked on " + $(this).attr("journey_id"));
-        current_journey = $(this).attr("journey_id");
+        selectedJourney = $(this).attr("journey_id");
+        console.log("Clicked on journey_id: " + $(this).attr("journey_id"));
+        //Now switch to rejourney page.
     });
 });
 

@@ -22,31 +22,6 @@
         app.initialize();
     </script>
 
-<!-- <!-- Start of Dev page -->
-<!-- <div data-role="page" id="home">
- -->
-    <!-- <div data-role="header">
-        <h1>Home</h1>
-        <div data-role="navbar" data-grid="c">
-            <ul>
-                <li><a href="#old_home" data-transition="none" data-icon="home" data-inline="true">Dev Tab</a></li>
-                <li><a href="#home" data-transition="none" data-icon="home" data-inline="true">Home</a></li>
-                <li><a href="#history" data-transition="none" data-icon="info" data-inline="true">History</a></li>
-                <li><a href="#rejourney" data-transition="none" data-icon="star" data-inline="true">ReJourney!</a></li>
-            </ul>
-        </div><!--close navbar-->
-    <!-- </div>close header --> -->
-
-    <!-- <div data-role="content">
-        <p>Welcome to the <em>ReJourney</em> app. By clicking <em>Take Photo</em> when prompted, you will record your geolocation using the GPS feature on your phone while taking the photo.</p>
-
-        <button id="home_network_button" data-icon="check">Internet Access Enabled</button>
-        <button id="home_clearstorage_button">Clear local storage</button>
-        <button id="home_seedgps_button">Load Seed GPS Data</button>
-    </div> -->
-<!-- </div>  -->
-<!-- End of Dev page -->  -->
-
 <!-- Start of Home page -->
 <div data-role="page" id="home">
     <div data-role="header">
@@ -78,7 +53,7 @@
     </div>
 
     <footer>
-        <img src="img/global_footer_blue.png" id="footerimg" style="position:fixed;">
+        <img src="img/global_footer_blue.png" id="footerimg">
     </footer>
 
 </div>
@@ -104,32 +79,12 @@
     </div>
 
     <footer>
-        <img src="img/global_footer_blue.png" id="footerimg" style="position:fixed;">
+        <img src="img/global_footer_blue.png" id="footerimg">
     </footer>
 </div>
 <!-- End of the History page -->
 
-<!-- Journey Info page -->
- <div data-role="page" id="journey_info">
-    <div data-role="header">
-        <h1>Viewing Single Journey</h1>
-        <div data-role="navbar">
-            <ul>
-
-                <li><a href="#home" data-transition="none" data-icon="home" data-inline="true">Home</a></li>
-                <li><a href="#history" data-transition="none" data-icon="info" data-inline="true">History</a></li>
-                <li><a href="#rejourney" data-transition="none" data-icon="star" data-inline="true">ReJourney!</a></li>
-            </ul>
-        </div>close navbar>
-    </div><!-- close header  -->
-    <div data-role="content">
-        <p id="journey_info_info"></p>
-        <div id="map_canvas" style="position:absolute;bottom:0;left:0;width:100%;height:300px;"></div>
-
-    </div>
-</div> --><!-- End of the Journey Info  page -->
-
- Start of the ReJourney page
+ <!-- Start of the ReJourney page -->
 <div data-role="page" id="rejourney">
 
     <div data-role="header">
@@ -141,15 +96,17 @@
                 <li><a href="#history" data-transition="none" data-icon="info" data-inline="true">History</a></li>
                 <li><a href="#rejourney" data-transition="none" data-icon="star" data-inline="true">ReJourney!</a></li>
             </ul>
-        </div><!--close navbar
+        </div><!--close navbar-->
     </div><!--close header-->
     <div data-role="content">
-        <p id="photos_recorded"></p>
-        <ul data-role="listview" id="history_photolist">
-        </ul>
+        <p id="photos_recorded">This is the map</p>
+        <!-- <ul data-role="listview" id="history_photolist"> -->
+        <!-- </ul> -->
+        <div id="map_canvas" style="margin-left:auto;margin-right:auto;width:100%;height:500px;">
+        </div>
     </div>
     <footer>
-        <img src="img/global_footer_blue.png" id="footerimg" style="position:fixed;">
+        <img src="img/global_footer_blue.png" id="footerimg">
     </footer>
 </div>
 <!-- End of the ReJourney page -->
@@ -163,6 +120,7 @@
         <script type="text/javascript" src="js/model.js"></script>
         <script type="text/javascript" src="js/home.js"></script>
         <script type="text/javascript" src="js/history.js"></script>
+        <script type="text/javascript" src="js/rejourney.js"></script>
         <!-- <script type="text/javascript" src="../www/js/gps_photo_sql.js"></script> -->
     </body>
 </html>

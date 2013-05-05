@@ -1,29 +1,4 @@
 
-// $("#home_clearstorage_button").on('click', function(){
-//  window.localStorage.clear();
-// });
-
-// $("#home_seedgps_button").on('click', function(){
-//  window.localStorage.setItem('Sample block', '[{"timestamp":1335700802000,"coords":{"heading":null,"altitude":null,"longitude":170.33488333333335,"accuracy":0,"latitude":-45.87475166666666,"speed":null,"altitudeAccuracy":null}},{"timestamp":1335700803000,"coords":{"heading":null,"altitude":null,"longitude":170.33481666666665,"accuracy":0,"latitude":-45.87465,"speed":null,"altitudeAccuracy":null}},{"timestamp":1335700804000,"coords":{"heading":null,"altitude":null,"longitude":170.33426999999998,"accuracy":0,"latitude":-45.873708333333326,"speed":null,"altitudeAccuracy":null}},{"timestamp":1335700805000,"coords":{"heading":null,"altitude":null,"longitude":170.33318333333335,"accuracy":0,"latitude":-45.87178333333333,"speed":null,"altitudeAccuracy":null}},{"timestamp":1335700806000,"coords":{"heading":null,"altitude":null,"longitude":170.33416166666666,"accuracy":0,"latitude":-45.871478333333336,"speed":null,"altitudeAccuracy":null}},{"timestamp":1335700807000,"coords":{"heading":null,"altitude":null,"longitude":170.33526833333332,"accuracy":0,"latitude":-45.873394999999995,"speed":null,"altitudeAccuracy":null}},{"timestamp":1335700808000,"coords":{"heading":null,"altitude":null,"longitude":170.33427333333336,"accuracy":0,"latitude":-45.873711666666665,"speed":null,"altitudeAccuracy":null}},{"timestamp":1335700809000,"coords":{"heading":null,"altitude":null,"longitude":170.33488333333335,"accuracy":0,"latitude":-45.87475166666666,"speed":null,"altitudeAccuracy":null}}]');
-
-// });
-//*********************************************************************************************************************************************************************
-//*********************************************************************************************************************************************************************
-//*********************************************************************************************************************************************************************
-//*********************************************************************************************************************************************************************
-//*********************************************************************************************************************************************************************
-
-// var watch_id = null;    // ID of the geolocation
-// var photoLocation_id = null; //ID of location the ohto was taken
-var journeyTracking_data = []; // Array containing GPS position objects for journey
-var photoTracking_data = []; // Array containing GPS position objects for journey
-var journeyTime_val = []; // Array containing time for journey
-var photoTime_val = []; // Array containing time for journey
-var map = null;
-var watch_id = null;
-var journey_id = null;
-// var photoTallyForJourney = null; // Variable counting the number of photos taken on the journey.
-// var db = null;
 
 
 //*********************************************************************************************************************************************************************
@@ -53,8 +28,8 @@ function onWatchSuccess(position) { //Position object created by the geolocation
     // });
     // trackPath.setMap(map);
     //Write to db using model.js functions.
-    console.log("Watching!!!!!");
-    addTrackPointToDB(journey_id, position) //Write geolocation to db. See model.js
+    console.log('onWatchSuccess. Position obj:' + position);
+    addTrackPointToDB(position) //Write geolocation to db. See model.js
 }
 
 function onStartError(error) {
@@ -63,21 +38,14 @@ function onStartError(error) {
 
 $("#startJourney").on('click', function(){
     // alert('startJourney clicked');
-    var journeyName = $('#journeyName').val(); //from #journeyName_field" of home page
-    addJourneyToDB(journeyName, Date.now()); //Write journey name to db when start journey button is clicked. See model.js
-    var default_center = new google.maps.LatLng(37.37, 121.92);
-    var mapOptions = {
-        zoom: 15,
-        center: default_center,
-        mapTypeId: google.maps.MapTypeId.ROADMAP
-    };
-    map = new google.maps.Map(document.getElementById("map_canvas"), mapOptions);
+    currentJourneyName = $('#journeyName').val(); //from #journeyName_field" of home page
+    addJourneyToDB(currentJourneyName, Date.now()); //Write journey name to db when start journey button is clicked. See model.js
     // alert('Map object:' + map);
-    console.log('Journey: "' + journeyName + '" started!');
+    console.log('Journey: "' + currentJourneyName + '" started!');
 
     console.log("Invoking geolocation watch");
     watch_id = navigator.geolocation.watchPosition(onWatchSuccess, onStartError, { // Start tracking
-        maximumAge: 1000,
+        maximumAge: 1000, //Accept a cached position whose age is no greater than the specified time in milliseconds. (Number)
         // timeout: 5000,
         enableHighAccuracy: false
     });
@@ -89,22 +57,22 @@ $("#startJourney").on('click', function(){
 //*********************************************************************************************************************************************************************
 //*********************************************************************************************************************************************************************
 //*********************************************************************************************************************************************************************
-function onEndJourneySuccess(position) { //Position object created by the geolocation API: coords + timestamp
-    //Write to db using model.js functions.
-    endJourneyInDB(journeyName, endTime); //Write end time to db when stop journey button is clicked.
-    addTrackPointToDB(journey_id, position) //Write geolocation to db.
+function endJourney() { //Position object created by the geolocation API: coords + timestamp
+    console.log('Inside endJourney: ');
+    countTrackPoints();
+    endJourneyInDB(); //Write end time to db when stop journey button is clicked.
+    // addTrackPointToDB(position); //Write geolocation to db.
+
 }
+
 function onEndError(error) {
     alert('End Journey Error');
 }
 $("#stopJourney").on('click', function(){
 
-    // watchId = navigator.geolocation.getCurrentPosition(onEndJourneySuccess, onEndError);
     navigator.geolocation.clearWatch(watch_id); // Stop tracking.
-    var journeyName = $('#journeyName').val(); //from #journeyName_field" of home page
-    alert('Journey: "' + journeyName + '" ended.');
-    endJourneyInDB(journey_id);
-
+    alert('Journey: "' + currentJourneyName + '" ended.');
+    endJourney();
 });
 
 //*********************************************************************************************************************************************************************
@@ -139,8 +107,8 @@ function onCameraSuccess(imageURI) {
     // var pos = null;
     alert('inside onCameraSuccess');
     var onPositionSuccess = function(position){
-        alert("position: " + position + "ImageURI: " + imageURI);
-        addPhotoToDB(position, imageURI);
+        console.log("position: " + position + "ImageURI: " + imageURI);
+        addPhotoToDB(journey_id, position, imageURI);
     }
     var onPositionError = function(error){
         alert("onPositionError: " + error.message);

@@ -1,6 +1,21 @@
-var db = null;
-var current_journey = null;
+//*********************************************************************************************************************************************************************
+//*********************************************************************************************************************************************************************
+//*********************************************************************************************************************************************************************
+//*********************************************************************************************************************************************************************
+//*********************************************************************************************************************************************************************
 
+
+var db = null;
+var currentJourney = null;
+var currentJourneyName = null;
+var watch_id = null;
+var selectedJourney = null;
+var selectedJourneyCoords = [];
+
+//*********************************************************************************************************************************************************************
+//*********************************************************************************************************************************************************************
+//*********************************************************************************************************************************************************************
+//*********************************************************************************************************************************************************************
 //*********************************************************************************************************************************************************************
 
 var readyCB = function(){  //Anon function for onDeviceReady.
@@ -10,117 +25,196 @@ var readyCB = function(){  //Anon function for onDeviceReady.
                                  .button('refresh');
     }
     // window.requestFileSystem(LocalFileSystem.PERSISTENT, 0, readJourneys, fail); //Check if the user will allow you to access filesystem
-    createDB();
-    getSQLResults();
+    if(!db){
+        console.log("DB is not connected");
+        db = window.openDatabase("ReJourneyDB", "1.0", "ReJourneyDB", 200000); //This method will create a new SQL Lite Database and return a Database object.
+        console.log("DB is now connected");
+    }
+    // dropTables();
+    populateDB();
 };
 
 document.addEventListener("deviceready", readyCB);
-
-function createDB(){
-    if(!db){
-        console.log("DB Doesn't exist");
-        db = window.openDatabase("ReJourneyDB3", "1.0", "ReJourneyDB", 200000); //This method will create a new SQL Lite Database and return a Database object.
-        console.log("DB Created");
-        console.log(db);
-    }
-    db.transaction(populateDB, errorCB, successCB); //Run transaction to create initial tables
-}
 
 function errorCB(err) {
     alert("errorCB: Error processing SQL: "+ err.message);
 }
 
 function successCB() {
-    // alert("db success!");
+    console.log("DB success!");
 }
 
 //Populate database functions.
-function populateDB(tx) {
-    tx.executeSql('CREATE TABLE IF NOT EXISTS Journeys (id INTEGER PRIMARY KEY AUTOINCREMENT, name TEXT, start INTEGER, end INTEGER)');
-    tx.executeSql('CREATE TABLE IF NOT EXISTS Tracks (id INTEGER PRIMARY KEY AUTOINCREMENT, journey_id INTEGER NOT NULL, timestamp INTEGER, lat REAL, lon REAL, FOREIGN KEY(journey_id) REFERENCES Journeys(id))');
-    tx.executeSql('CREATE TABLE IF NOT EXISTS Photos (id INTEGER PRIMARY KEY AUTOINCREMENT, journey_id INTEGER NOT NULL, lat REAL, lon REAL, timestamp INTEGER, uri TEXT, FOREIGN KEY(journey_id) REFERENCES Journeys(id))');
+function populateDB() {
+    db.transaction(function(tx) {
+        tx.executeSql('CREATE TABLE IF NOT EXISTS Journeys (id INTEGER PRIMARY KEY AUTOINCREMENT, name TEXT UNIQUE, start TIMESTAMP, end TIMESTAMP)');
+        tx.executeSql('CREATE TABLE IF NOT EXISTS TrackPoints (id INTEGER PRIMARY KEY AUTOINCREMENT, journey_id INTEGER NOT NULL, timestamp TIMESTAMP, lat REAL, lon REAL, FOREIGN KEY(journey_id) REFERENCES Journeys(id))');
+        tx.executeSql('CREATE TABLE IF NOT EXISTS PhotoPoints (id INTEGER PRIMARY KEY AUTOINCREMENT, journey_id INTEGER NOT NULL, lat REAL, lon REAL, timestamp TIMESTAMP, uri TEXT, FOREIGN KEY(journey_id) REFERENCES Journeys(id))');
+        // tx.executeSql('INSERT INTO Journeys(name) values(?)', journeyName); //Write journey name to db when start journey button is clicked.
+        // tx.executeSql('INSERT INTO Tracks(journey_id, latitude, longitude) values(?,?,?)', [journey_id, startLat, startLong]);
+    }, errorCB, successCB);
+}
+
+//Populate database functions.
+function dropTables() {
+    db.transaction(function(tx) {
+        tx.executeSql('DROP TABLE IF EXISTS Journeys');
+        tx.executeSql('DROP TABLE IF EXISTS TrackPoints');
+        tx.executeSql('DROP TABLE IF EXISTS PhotoPoints');
+    }
+    , errorCB, successCB);
     // tx.executeSql('INSERT INTO Journeys(name) values(?)', journeyName); //Write journey name to db when start journey button is clicked.
     // tx.executeSql('INSERT INTO Tracks(journey_id, latitude, longitude) values(?,?,?)', [journey_id, startLat, startLong]);
 }
-
-function queryDB(tx){
+//*********************************************************************************************************************************************************************
+function queryJourneysDB(tx){
     tx.executeSql(
-        'SELECT * FROM Journeys', [], querySuccess, errorCB);
+        'SELECT * FROM Journeys', [], queryJourneysSuccess, errorCB);
 }
 
-function querySuccess(tx, results){
-    console.log('results.rows.length' + results.rows.length);
+function queryJourneysSuccess(tx, results){
+    console.log('results.rows.length of DB from queryJourneysSuccess' + results.rows.length);
 }
 
-function getSQLResults(){
-    if(!db){
-        ("rejourneyDatabase", "1.0", "ReJourneyDB", 200000);
+function queryCurrentJourney(tx, journeyName){
+    console.log("journeyName from queryCurrentJourney = " + journeyName)
+    tx.executeSql(
+        'SELECT id FROM Journeys WHERE name = ?', [journeyName], queryCurrentJourneySuccess, errorCB);
+}
+
+function queryCurrentJourneySuccess(tx, results){
+    var len = results.rows.length;
+    console.log("Row of currentJourney is: " + len);
+    currentJourney = results.rows.item(0).id; //item(0) because we are selecting the first item return from query.
+    console.log("currentJourney=" + currentJourney);
+}
+//*********************************************************************************************************************************************************************
+//*********************************************************************************************************************************************************************
+function countTrackPoints() {
+    function queryTrackPointsSuccess(tx, results){
+        console.log('Number of track points recorded in this journey: ' + results.rows.length);
     }
-        db.transaction(queryDB,errorCB);
+
+    function queryTrackPointsFromAJourney(tx){
+        tx.executeSql(
+            'SELECT * FROM TrackPoints WHERE journey_id = ?', [currentJourney], queryTrackPointsSuccess, errorCB);
     }
-//*********************************************DATABASE MANIPULATION VIA HTML PAGE BUTTONS********************************************************************
+
+    db.transaction(queryTrackPointsFromAJourney, errorCB, successCB);
+
+}
+//*********************************************************************************************************************************************************************
+function getTrackPointsForSelectedJourney() {
+    function queryTrackPointsForSelectedJourneySuccess(tx, results){
+        selectedJourneyCoords = [];
+        var len = results.rows.length
+        console.log('queryTrackPointsForSelectedJourneySuccess. #points:' + len );
+        for(var i=0; i<len; i++){
+            var j = results.rows.item(i);
+            var point = new google.maps.LatLng(j.lat, j.lon);
+            console.log("points lat: "+ j.lat + "lon: " + j.lon)
+            selectedJourneyCoords.push(point)
+        }
+
+    }
+
+    function queryTrackPointsForSelectedJourneyError(error){
+        console.log('Unable to query track point for selected journey: ' + error.message);
+    }
+
+
+    function queryTrackPointsForSelectedJourney(tx){
+        tx.executeSql(
+            'SELECT * FROM TrackPoints WHERE journey_id = ? ORDER BY timestamp', [selectedJourney], queryTrackPointsForSelectedJourneySuccess, queryTrackPointsForSelectedJourneyError);
+    }
+
+    db.transaction(queryTrackPointsForSelectedJourney, errorCB, successCB);
+
+}
+
+
+// function queryCurrentJourneySuccess(tx, results){
+//     var len = results.rows.length;
+//     console.log("Row of currentJourney is: " + len);
+//     currentJourney = results.rows.item(0).id; //item(0) because we are selecting the first item return from query.
+//     console.log("currentJourney=" + currentJourney);
+// }
+//*********************************************************************************************************************************************************************
+
 function addJourneyToDB(journeyName, startTime) {
     console.log('Inside addJourneyToDB');
 
-    function successful_insert(tx, results) {
-        console.log("Successsful insert" + results);
-        console.log(results.insertId);
-        console.log(results.rowsAffected);
-        // console.log(results.rows.item(0));
-        current_journey = results.insertId; //Using global current_journey.
-        console.log("Started journey " + results.insertId);
+    // function successful_insert(tx, results) {
+    //     alert('Returned ID: ' + results.insertId);
+    //     console.log("Successsful insert" + results);
+    //     console.log(results.insertId);
+    //     console.log(results.rowsAffected);
+    //     // console.log(results.rows.item(0));
+    //     currentJourney = results.insertId; //Using global currentJourney.
+    //     console.log('successful_insert: currentJourney = ' + currentJourney);
+    //     console.log("Started journey " + results.insertId);
+    // }
+
+    function insertErrorCB(err) {
+        console.log("Error processing SQL addJourneyToDB: "+err.code);
     }
 
     function journey_insert(tx) {
         // console.log('Inside; db.transaction(function(transaction). transaction = ' + transaction);
         var SQL = 'INSERT INTO Journeys (name, start) VALUES (?, ?)';
         console.log( 'SQL: ' + SQL);
-        tx.executeSql(SQL, [journeyName, startTime], successful_insert);
+        tx.executeSql(SQL, [journeyName, startTime]);
     };
 
-    db.transaction(journey_insert, errorCB, function() {
-        console.log("Successful transaction");
-    });
+    db.transaction(journey_insert, insertErrorCB, successCB);
+    db.transaction(function(tx){queryCurrentJourney(tx, journeyName)}, insertErrorCB, successCB); //The anaonymous function is passing in journeyName to the query.
 }
 
-// function endJourneyInDB(journey_id) {
 function endJourneyInDB() {
-     if(!current_journey){ //Force a current journey value, so that null journeys are not stored in db.
-        db.transaction(function(transaction){ //The SQL var is the sql string statement, in place of populateDB.
-            endtime = Date.now();
-            SQL = "UPDATE Journeys SET end=? WHERE id=?";
-            // SQL = 'INSERT INTO Journeys (end) WHERE name = ' + journeyName;
-            // SQL += "VALUES (" + endTime + ")";
-            // transaction.executeSql(SQL, [endtime, journey_id], function(tx, results) { console.log("JOURNEY ENDED YEAAAAHHHH")} );
-            transaction.executeSql(SQL, [endtime, current_journey], function(tx, results) { console.log("JOURNEY ENDED YEAAAAHHHH")} );
-        }, errorCB, successCB);
+    function updateEndJourney(tx) {
+        var SQL = "UPDATE Journeys SET end=? WHERE id=?";
+        console.log( 'endJourneyInDB: SQL: ' + SQL);
+        tx.executeSql(SQL, [Date.now(), currentJourney]);
+    }
+
+    function successUpdateEndJourney(tx) {
+        console.log("Journey End!!");
+    }
+
+    if(currentJourney){
+        db.transaction(updateEndJourney, errorCB, successUpdateEndJourney);
+        //Reset Global variables
+        currentJourney = null;
+        currentJourneyName = null;
+        watch_id = null;
+        $('#journeyName').val(""); //Clear the journet name input field on the home screen.
     }else{
         alert('Please start a journey before ending a journey. :)');
     }
 }
-
-// function addTrackPointToDB(journey_id, position) {
+//*********************************************************************************************************************************************************************
 function addTrackPointToDB(position) {
-    if(!current_journey){ //Force a current journey value, so that null journeys are not stored in db.
-        db.transaction(function(transaction){ //The SQL var is the sql string statement, in place of populateDB.
-            SQL = 'INSERT INTO Tracks (journey_id, lat, lon, timestamp) VALUES (?, ?, ?, ?)';
-            // SQL += "VALUES (" + journey_id + "," + position.latitude + "," + position.longitude + "," + position.timestamp + ")";
-            // transaction.executeSql(SQL, [journey_id, position.coords.latitude, position.coords.longitude, position.timestamp]);
-            transaction.executeSql(SQL, [current_journey, position.coords.latitude, position.coords.longitude, position.timestamp]);
-            console.log("Adding track point " + position.coords.latitude + ", " + position.coords.longitude);
-        }, errorCB, successCB);
+    function insertTrackPoint(tx) {
+        var SQL = 'INSERT INTO TrackPoints (journey_id, lat, lon, timestamp) VALUES (?, ?, ?, ?)';
+        console.log( 'insertTrackPoint: SQL: ' + SQL);
+        alert("Insert trackpPoint in db: lat = " + position.coords.latitude + "long = " + position.coords.longitude + "timestamp = " + position.timestamp)
+        tx.executeSql(SQL, [currentJourney, position.coords.latitude, position.coords.longitude, position.timestamp]);
+    }
+    if(currentJourney){ //Force a current journey value, so that null journeys are not stored in db.
+
+        db.transaction(insertTrackPoint, errorCB, successCB);
     }else{
-        alert('Cannot add journey point to database.');
+        alert('Cannot add journey point to database. Please start a journey.');
     }
 }
 
-// function addPhotoToDB(journey_id, position, photo_uri) {
-function addPhotoToDB(position, photo_uri) {
-    if(!current_journey){ //Force a current journey value, so that null journeys are not stored in db.
+function addPhotoToDB(journey_id, position, photo_uri) {
+// function addPhotoToDB(position, photo_uri) {
+    if(currentJourney){ //Force a current journey value, so that null journeys are not stored in db.
         db.transaction(function(transaction){ //The SQL var is the sql string statement, in place of populateDB.
             SQL = 'INSERT INTO Photos (journey_id, lat, lon, timestamp, uri) VALUES (?, ?, ?, ?, ?)';
-            transaction.executeSql(SQL, [current_journey, position.coords.latitude, position.coords.longitude, position.timestamp, photo_uri]);
-            console.log("current_journey = " + current_journey + "Adding photo point: " + position.coords.latitude + ", " + position.coords.longitude + "," + photo_uri);
+            transaction.executeSql(SQL, [currentJourney, position.coords.latitude, position.coords.longitude, position.timestamp, photo_uri]);
+            console.log("currentJourney = " + currentJourney + "Adding photo point: " + position.coords.latitude + ", " + position.coords.longitude + "," + photo_uri);
         }, errorCB, successCB);
     }else{
         alert('Cannot add photo to database before starting a journey. Please hit start journey.');
