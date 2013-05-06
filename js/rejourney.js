@@ -2,31 +2,23 @@
 $('#rejourney').on('pageshow', function(){
     console.log("Inside rejourney pageShow");
     // -------------------------------Plotthe Journey and Photos on the Google Maps---------------------------------------------
+    // Pull Track Points for Journey from DB
+    getTrackPointsForSelectedJourney();
+
     // Set up the Google Map
     var map = null;
-
     var mapOptions = {
         zoom: 15,
-        center: new google.maps.LatLng(37.788861,-122.411586), //HB address
+        // center: new google.maps.LatLng(37.788861,-122.411586), //HB address
+        center: selectedJourneyCoords[0],  //Start at first point in the journey on the map
         mapTypeId: google.maps.MapTypeId.ROADMAP
     };
     map = new google.maps.Map(document.getElementById('map_canvas'), mapOptions);
-
     // google.maps.event.addDomListener(window, 'load', initialize);
 
     console.log('Map object:' + map);
-    // pull journey info
 
-    // Pull Track Points for Journey from DB
-    getTrackPointsForSelectedJourney();
-    // var journeyCoords = [
-    // new google.maps.LatLng(37.772323, -122.214897),
-    // new google.maps.LatLng(21.291982, -157.821856),
-    // new google.maps.LatLng(-18.142599, 178.431),
-    // new google.maps.LatLng(-27.46758, 153.027892)
-    // ];
-
-    // Plot the GPS entries as a line on the Google Map
+   // Plot the GPS entries as a line on the Google Map
     var journeyPath = new google.maps.Polyline({
       path: selectedJourneyCoords,
       strokeColor: "#FF0000",
@@ -48,6 +40,19 @@ $('#rejourney').on('pageshow', function(){
 
 });
  // Pull Photo Points for Journey from DB
+// If (Camera.sourceType = Camera.PictureSourceType){
+//     PHOTOLIBRARY or Camera.PictureSourceType.SAVEDPHOTOALBUM, then a photo chooser dialog is shown, from which a photo from the album can be selected.
+// }
+
+//  $("#slideShow").on('click', function()
+// {
+//     $("#slideshow").cycle({fx: 'fade', timeout: 500});
+//     $('#zoom').cycle({
+//         fx:    'zoom',
+//         sync:  false,
+//         delay: -2000
+//     });
+// });
 
 
 function gps_distance(lat1, lon1, lat2, lon2)

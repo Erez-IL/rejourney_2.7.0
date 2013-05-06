@@ -107,6 +107,7 @@ function countTrackPoints() {
 function getTrackPointsForSelectedJourney() {
     function queryTrackPointsForSelectedJourneySuccess(tx, results){
         selectedJourneyCoords = [];
+
         var len = results.rows.length
         console.log('queryTrackPointsForSelectedJourneySuccess. #points:' + len );
         for(var i=0; i<len; i++){
@@ -117,6 +118,7 @@ function getTrackPointsForSelectedJourney() {
         }
 
     }
+
 
     function queryTrackPointsForSelectedJourneyError(error){
         console.log('Unable to query track point for selected journey: ' + error.message);
@@ -197,7 +199,7 @@ function addTrackPointToDB(position) {
     function insertTrackPoint(tx) {
         var SQL = 'INSERT INTO TrackPoints (journey_id, lat, lon, timestamp) VALUES (?, ?, ?, ?)';
         console.log( 'insertTrackPoint: SQL: ' + SQL);
-        alert("Insert trackpPoint in db: lat = " + position.coords.latitude + "long = " + position.coords.longitude + "timestamp = " + position.timestamp)
+        // alert("Insert trackPoint in db: lat = " + position.coords.latitude + "long = " + position.coords.longitude + "timestamp = " + position.timestamp)
         tx.executeSql(SQL, [currentJourney, position.coords.latitude, position.coords.longitude, position.timestamp]);
     }
     if(currentJourney){ //Force a current journey value, so that null journeys are not stored in db.

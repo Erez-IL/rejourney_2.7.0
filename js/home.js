@@ -47,7 +47,7 @@ $("#startJourney").on('click', function(){
     watch_id = navigator.geolocation.watchPosition(onWatchSuccess, onStartError, { // Start tracking
         maximumAge: 1000, //Accept a cached position whose age is no greater than the specified time in milliseconds. (Number)
         // timeout: 5000,
-        enableHighAccuracy: false
+        enableHighAccuracy: true
     });
 
 })
