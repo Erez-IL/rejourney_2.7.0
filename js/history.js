@@ -164,3 +164,4 @@ function gps_distance(lat1, lon1, lat2, lon2)
 
     return d;
 }
+

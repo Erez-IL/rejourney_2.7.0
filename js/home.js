@@ -105,10 +105,11 @@ function onCameraSuccess(imageURI) {
     // addPhotoToDB(journey_id, position, photo_uri);
     // google.maps.event.addDomListener(window, 'load', onCameraSuccess); //https://developers.google.com/maps/documentation/javascript/examples/marker-simple
     // var pos = null;
-    alert('inside onCameraSuccess');
+    console.log("Image URI: " + imageURI);
+    console.log('inside onCameraSuccess');
     var onPositionSuccess = function(position){
         console.log("position: " + position + "ImageURI: " + imageURI);
-        addPhotoToDB(journey_id, position, imageURI);
+        addPhotoToDB(currentJourney, position, imageURI);
     }
     var onPositionError = function(error){
         alert("onPositionError: " + error.message);

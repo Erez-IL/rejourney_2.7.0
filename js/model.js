@@ -214,9 +214,9 @@ function addPhotoToDB(journey_id, position, photo_uri) {
 // function addPhotoToDB(position, photo_uri) {
     if(currentJourney){ //Force a current journey value, so that null journeys are not stored in db.
         db.transaction(function(transaction){ //The SQL var is the sql string statement, in place of populateDB.
-            SQL = 'INSERT INTO Photos (journey_id, lat, lon, timestamp, uri) VALUES (?, ?, ?, ?, ?)';
+            SQL = 'INSERT INTO PhotoPoints (journey_id, lat, lon, timestamp, uri) VALUES (?, ?, ?, ?, ?)';
             transaction.executeSql(SQL, [currentJourney, position.coords.latitude, position.coords.longitude, position.timestamp, photo_uri]);
-            console.log("currentJourney = " + currentJourney + "Adding photo point: " + position.coords.latitude + ", " + position.coords.longitude + "," + photo_uri);
+            console.log("currentJourney:" + currentJourney + " Adding photo point: " + position.coords.latitude + ", " + position.coords.longitude + "," + photo_uri);
         }, errorCB, successCB);
     }else{
         alert('Cannot add photo to database before starting a journey. Please hit start journey.');
