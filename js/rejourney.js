@@ -15,7 +15,6 @@ $('#rejourney').on('pageshow', function(){
     };
     map = new google.maps.Map(document.getElementById('map_canvas'), mapOptions);
     // google.maps.event.addDomListener(window, 'load', initialize);
-
     console.log('Map object:' + map);
 
    // Plot the GPS entries as a line on the Google Map
@@ -39,6 +38,12 @@ $('#rejourney').on('pageshow', function(){
     // photoMarkers.setMap(map);
 
 });
+
+
+$('#viewPhotos').on('click', function(){
+    console.log("Inside rejourney viewPhotos");
+});
+
  // Pull Photo Points for Journey from DB
 // If (Camera.sourceType = Camera.PictureSourceType){
 //     PHOTOLIBRARY or Camera.PictureSourceType.SAVEDPHOTOALBUM, then a photo chooser dialog is shown, from which a photo from the album can be selected.

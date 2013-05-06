@@ -46,6 +46,8 @@ $(document).ready(function() {
     });
 });
 
+
+
 // When the user views the Journey Info page
 $('#journey_info').on('pageshow', function(){
     console.log("Showing the journey info for journey " + current_journey);

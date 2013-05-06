@@ -1,2 +1,9 @@
-//make a page that contains image tag <img>  displays single image + previous and next buttons
-//
+$("#nextPhoto").on('click', function() {
+
+    });
+});
+
+$("#previousPhoto").on('click', function() {
+
+    });
+});
