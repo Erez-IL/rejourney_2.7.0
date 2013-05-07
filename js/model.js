@@ -1,9 +1,3 @@
-//*********************************************************************************************************************************************************************
-//*********************************************************************************************************************************************************************
-//*********************************************************************************************************************************************************************
-//*********************************************************************************************************************************************************************
-//*********************************************************************************************************************************************************************
-
 
 var db = null;
 var currentJourney = null;
@@ -64,8 +58,6 @@ function dropTables() {
         tx.executeSql('DROP TABLE IF EXISTS PhotoPoints');
     }
     , errorCB, successCB);
-    // tx.executeSql('INSERT INTO Journeys(name) values(?)', journeyName); //Write journey name to db when start journey button is clicked.
-    // tx.executeSql('INSERT INTO Tracks(journey_id, latitude, longitude) values(?,?,?)', [journey_id, startLat, startLong]);
 }
 //*********************************************************************************************************************************************************************
 function queryJourneysDB(tx){
@@ -135,13 +127,6 @@ function getTrackPointsForSelectedJourney() {
 
 }
 
-
-// function queryCurrentJourneySuccess(tx, results){
-//     var len = results.rows.length;
-//     console.log("Row of currentJourney is: " + len);
-//     currentJourney = results.rows.item(0).id; //item(0) because we are selecting the first item return from query.
-//     console.log("currentJourney=" + currentJourney);
-// }
 //*********************************************************************************************************************************************************************
 
 function addJourneyToDB(journeyName, startTime) {
@@ -224,27 +209,25 @@ function addPhotoToDB(journey_id, position, photo_uri) {
     }
 }
 
-    // //Write data to db
-    // db.transaction(function(tx) {
-    //     tx.executeSql('INSERT INTO Journey (name, start) VALUES ("' + journeyName + '", ' + Date.now() + ')'); //Insert Journet name and current time.
-    //     tx.executeSql('INSERT INTO Tracks (latitude, longitude, timestamp) VALUES ("' + journeyName + '", ' + Date.now() + ')'); //Insert Journet name and current time.
-    // }, errorCB, successCB);
 
-
-function getAllPhotos() {
+function getAllPhotos(journey_id) {
     function log_results(tx,results) {
         console.log("Photos in db (" + results.rows.length + ")");
+        target = $("div#photo_target");
+        var photo_list = $("ul");
         for (var i = 0; i < results.rows.length; i++) {
             var item = results.rows.item(i);
-            console.log("Photo info");
-            console.log(item.id + ", " + item.journey_id + ", " + item.uri);
+            photo_list.append($("<li><img src='" + item.uri + "' width='50px'></li>"));
+            // console.log("Photo info");
+            // console.log(item.id + ", " + item.journey_id + ", " + item.uri);
         }
-
+        target.html(photo_list);
     }
 
     function get_photo_query(transaction) {
-        SQL = "SELECT * FROM PhotoPoints;";
-        transaction.executeSql(SQL, [], log_results);
+        SQL = "SELECT * FROM PhotoPoints where journey_id = ?;";
+        console.log("Querying for journey " + journey_id);
+        transaction.executeSql(SQL, [journey_id], log_results);
     }
 
     db.transaction(get_photo_query, function(err) {console.log(err.message);},

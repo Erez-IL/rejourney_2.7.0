@@ -41,9 +41,9 @@ $('#rejourney').on('pageshow', function(){
 
 
 $('a#viewPhotos').on('click', function(){
-    getAllPhotos();
+    // getAllPhotos();
     console.log("Inside rejourney viewPhotos");
-    return false;
+    // return false;
     // the button has an href attribute, which does the nav, so nothing happens here.
 });
 
@@ -114,4 +114,3 @@ $('#photoPage').on('pageshow', function() {
         tx.executeSql('SELECT * FROM PhotoPoints WHERE journey_id = '+selectedJourney, photoPointQuerySuccess, photoPointQueryError);
     });
 });
-

@@ -40,6 +40,7 @@ $(document).ready(function() {
     $("#history_journeylist").on('click', "a.journey_button", function(){
         // $("#journey_info").attr("photo_id", $(this).text());
         selectedJourney = $(this).attr("journey_id");
+        getAllPhotos(selectedJourney);
         console.log("Clicked on journey_id: " + $(this).attr("journey_id"));
         //Now switch to rejourney page.
     });
