@@ -22,6 +22,17 @@ $('#history').on('pageshow', function () {
 
         // Tell jQueryMobile to refresh the list
         $("#history_journeylist").listview('refresh');
+        //     <div data-role="header">
+        //         <h1>History</h1>
+        //         <div data-role="navbar">
+        //             <ul>
+
+        //                 <li><a href="#home" data-transition="none" data-icon="home" data-inline="true">Home</a></li>
+        //                 <li><a href="#history" data-transition="none" data-icon="info" data-inline="true">History</a></li>
+        //                 <li><a href="#rejourney" data-transition="none" data-icon="star" data-inline="true">ReJourney!</a></li>
+        //             </ul>
+        //         </div><!--close navbar-->
+        //     </div><!--close header-->
         console.log("listview('refresh')");
     }
 

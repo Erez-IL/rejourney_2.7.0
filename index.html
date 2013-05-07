@@ -101,7 +101,8 @@
         <p id="map">Map of Your Journey</p>
         <div id="map_canvas" style="margin-left:auto;margin-right:auto;width:100%;height:450px;">
         </div>
-        <a id="viewPhotos" href="#photoPage">View Photos From This Journey</a>
+        <!-- <a id="viewPhotos" href="#photoPage">View Photos From This Journey</a> -->
+        <a id="viewPhotos" data-ajax="false" class="ui-link" href="#photoPage">View Photos From This Journey</a>
     </div>
     <footer>
         <img src="img/global_footer_blue.png" id="footerimg">
@@ -111,7 +112,7 @@
 
  <!-- Start of the Photos page -->
 <div data-role="page" id="photoPage">
-    <div data-role="header">
+    <div d>
         <h1>Photos</h1>
         <div data-role="navbar">
             <ul>
@@ -126,9 +127,9 @@
         <div id="photo_target"></div>
         <!-- <div id="map_canvas" style="margin-left:auto;margin-right:auto;width:100%;height:450px;">         -->
         <!-- <div><img src="img/psy.png" id="psy"></div> -->
-        <div id= "photoDisplay"><img src="img/psy.png" id="psy"></div>
+<!--         <div id= "photoDisplay"><img src="img/psy.png" id="psy"></div>
         <button data-role="button" id="previousPhoto" >Previous Photo</button>
-        <button data-role="button" id="nextPhoto" >Next Photo</button>
+        <button data-role="button" id="nextPhoto" >Next Photo</button> -->
     </div>
     <footer>
         <img src="img/global_footer_blue.png" id="footerimg">

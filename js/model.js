@@ -1,4 +1,3 @@
-
 var db = null;
 var currentJourney = null;
 var currentJourneyName = null;
@@ -209,18 +208,21 @@ function addPhotoToDB(journey_id, position, photo_uri) {
     }
 }
 
-
 function getAllPhotos(journey_id) {
     function log_results(tx,results) {
         console.log("Photos in db (" + results.rows.length + ")");
-        target = $("div#photo_target");
-        var photo_list = $("ul");
+        var target = $("div#photo_target");
+        var photo_list = $("<ul>");
         for (var i = 0; i < results.rows.length; i++) {
             var item = results.rows.item(i);
-            photo_list.append($("<li><img src='" + item.uri + "' width='50px'></li>"));
+            URIsForPhotoList = "<li><img src='" + item.uri + "' style='width:700px;'></li>" //Nexus 7 tablet width
+            // URIsForPhotoList = "<li><img src='" + item.uri + "' style='width:50px;'></li>" //phone width
+            console.log(URIsForPhotoList);
+            photo_list.append(URIsForPhotoList);
             // console.log("Photo info");
             // console.log(item.id + ", " + item.journey_id + ", " + item.uri);
         }
+        console.log(photo_list)
         target.html(photo_list);
     }
 

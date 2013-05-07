@@ -18,14 +18,18 @@ $('#rejourney').on('pageshow', function(){
     console.log('Map object:' + map);
 
    // Plot the GPS entries as a line on the Google Map
-    var journeyPath = new google.maps.Polyline({
-      path: selectedJourneyCoords,
-      strokeColor: "#FF0000",
-      strokeOpacity: 1.0,
-      strokeWeight: 2
-    });
-    // // Apply the line to the map
-    journeyPath.setMap(map);
+    if (selectedJourneyCoords.length >= 1){ // Only make a polyline if there I at least 1 point in the db.
+        var journeyPath = new google.maps.Polyline({
+        path: selectedJourneyCoords,
+        strokeColor: "#FF0000",
+        strokeOpacity: 1.0,
+        strokeWeight: 2
+        });
+        // Apply the line to the map
+        journeyPath.setMap(map);
+    }
+
+
 
     // // Plot the GPS entries from photos as a circles on the Google Map
     // var photoMarkers = new google.maps.SymbolPath.CIRCLE({  //var photoMarkers = new google.maps.Marker({
