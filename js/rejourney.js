@@ -40,8 +40,11 @@ $('#rejourney').on('pageshow', function(){
 });
 
 
-$('#viewPhotos').on('click', function(){
+$('a#viewPhotos').on('click', function(){
+    getAllPhotos();
     console.log("Inside rejourney viewPhotos");
+    return false;
+    // the button has an href attribute, which does the nav, so nothing happens here.
 });
 
  // Pull Photo Points for Journey from DB
@@ -76,3 +79,39 @@ function gps_distance(lat1, lon1, lat2, lon2)
 
     return d;
 }
+
+
+//*************************************  Behavior for Button "View Photos From This Journey"*********************************
+function photoPointQueryError(err) {
+        console.log("Error gettings photo URIs for selected journey: " + err.message);
+}
+
+function photoPointQuerySuccess(tx, results) {
+    var qtyPhotoPoints = results.rows.length;
+    console.log("photoQuerySuccess. qtyPhotoPoints =  " + qtyPhotoPoints);
+    // console.log('selectedJourneyURIs= ' + selectedJourneyURIs);
+    // Empty the list of recorded tracks
+    $("#photoDisplay").empty();
+
+    // Iterate over all of the recorded photo points for the journey, populating the list on the history page.
+    for(var i=0; i<qtyPhotoPoints; i++){
+        var j = results.rows.item(i);
+        var imgTag= '<img src="' + j.uri + '">'
+        console.log("Image tag: " + imgTag);
+        $("#photoDisplay").append($(imgTag));
+        console.log('Appending qtyPhotoPoints:' + imgTag);
+    }
+
+}
+// When the user views the Journey Info page
+$('#photoPage').on('pageshow', function() {
+    console.log('photoPage page show');
+
+    db.transaction(function(tx) {
+        // alert("transaction:" + tx);
+        //Will only return the photos points from the selected journey.
+        console.log( "selectedJourney:" + selectedJourney);
+        tx.executeSql('SELECT * FROM PhotoPoints WHERE journey_id = '+selectedJourney, photoPointQuerySuccess, photoPointQueryError);
+    });
+});
+

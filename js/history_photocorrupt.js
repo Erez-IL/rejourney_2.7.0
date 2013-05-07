@@ -1,3 +1,4 @@
+
 // When the user views the history page
 $('#history').on('pageshow', function () {
     // alert('history page show');
@@ -12,7 +13,7 @@ $('#history').on('pageshow', function () {
         // Empty the list of recorded tracks
         $("#history_journeylist").empty();
 
-        // Iterate over all of the recorded journey, populating the list on the history page.
+        // Iterate over all of the recorded journeys, populating the list on the history page.
         for(var i=0; i<qtyJourneys; i++){
             var j = results.rows.item(i);
             var el="<li><a href='#rejourney' class='journey_button' journey_id='" + j.id + "' data-ajax='false'>" + j.name + "</a></li>"
@@ -22,11 +23,11 @@ $('#history').on('pageshow', function () {
 
         // Tell jQueryMobile to refresh the list
         $("#history_journeylist").listview('refresh');
-        console.log("listview('refresh')");
+        console.log("journey listview('refresh')");
     }
 
     function errorCB(err) {
-        console.log("Error processing SQL for journey_info?: " + err.message);
+        console.log("Error processing SQL for journey_info: " + err.message);
     }
 
     db.transaction(function(tx) {
@@ -49,7 +50,7 @@ $(document).ready(function() {
 
 // When the user views the Journey Info page
 $('#journey_info').on('pageshow', function(){
-    console.log("Showing the journey info for journey " + current_journey);
+    console.log("Showing the journey info for current_journey:  " + current_journey);
     // Find the photo_id of the journey they are viewing
     var key = $(this).attr("photo_id");
 
@@ -68,34 +69,7 @@ $('#journey_info').on('pageshow', function(){
     journeyData = JSON.parse(journeyData);
     photoData = JSON.parse(journeyData);
 
-    /*
-    // Calculate the total distance travelled
-    total_km = 0;
 
-    for(i = 0; i < journeyData.length; i++){
-
-        if(i == (journeyData.length - 1)){
-            break;
-        }
-
-        total_km += gps_distance(journeyData[i].coords.latitude, journeyData[i].coords.longitude, journeyData[i+1].coords.latitude, journeyData[i+1].coords.longitude);
-    }
-
-    total_km_rounded = total_km.toFixed(2);
-
-    // Calculate the total time taken for the journey
-    start_time = new Date(journeyData[0].timestamp).getTime();
-    end_time = new Date(journeyData[journeyData.length-1].timestamp).getTime();
-
-    total_time_ms = end_time - start_time;
-    total_time_s = total_time_ms / 1000;
-
-    final_time_m = Math.floor(total_time_s / 60);
-    final_time_s = total_time_s - (final_time_m * 60);
-
-    // Display total distance and time
-    $("#journey_info_info").html('Travelled <strong>' + total_km_rounded + '</strong> km in <strong>' + final_time_m + 'm</strong> and <strong>' + final_time_s + 's</strong>');
-    */
     // -------------------------------Plotting the Journey and Photos on the Google Maps---------------------------------------------
     // Set the initial Lat and Long of the Google Map
     var myLatLng = new google.maps.LatLng(journeyData[0].coords.latitude, journeyData[0].coords.longitude);
@@ -163,3 +137,46 @@ function gps_distance(lat1, lon1, lat2, lon2)
 
     return d;
 }
+//************************************* corrupt Behavior for Button "View Photos From This Journey"*********************************
+// When the user clicks the viewPhotos button, set/change the journey_id attribute on the journey_info page.
+// $(document).ready(function() {
+//     $("#viewPhotos").on('click', "a.viewPhotosjourney_button", function(){
+//         selectedJourneyURIs = $(this).attr("journey_id");
+//         console.log("Clicked on journey_id: " + $(this).attr("journey_id"));
+//         //Now switch to rejourney page.
+//     });
+// });
+
+
+// When the user views the Journey Info page
+$('#photoPage').on('pageshow', function () {
+    console.log('photoPage page show');
+
+    function photoPointQuerySuccess(tx, results) {
+        var qtyPhotoPoints = results.rows.length;  //Will only return the photos points from the selected journey.
+        console.log("photoQuerySuccess");
+        // console.log('selectedJourneyURIs= ' + selectedJourneyURIs);
+        // Empty the list of recorded tracks
+        $("#photoDisplay").empty();
+
+        // Iterate over all of the recorded photo points for the journey, populating the list on the history page.
+        for(var i=0; i<qtyPhotoPoints; i++){
+            var j = results.rows.item(i);
+            var imgTag= '<img src="' + j.uri + '">'
+            $("#photoDisplay").append($(imgTag));
+            console.log('Appending qtyPhotoPoints:' + imgTag);
+        }
+
+        // Tell jQueryMobile to refresh the list
+        $("#photoPage").listview('refresh');
+        console.log("photoPage('refresh')");
+    }
+
+    function photoPointQueryError(err) {
+        console.log("Error gettings photo URIs for selected journey: " + err.message);
+    }
+
+    db.transaction(function(tx) {
+        // alert("transaction:" + tx);
+        tx.executeSql('SELECT * FROM PhotoPoints WHERE journey_id = ?', [journey_id], photoPointQuerySuccess, photoPointQueryError);
+    }

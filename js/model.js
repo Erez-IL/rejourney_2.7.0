@@ -11,6 +11,7 @@ var currentJourneyName = null;
 var watch_id = null;
 var selectedJourney = null;
 var selectedJourneyCoords = [];
+var selectedJourneyURIs = [];
 
 //*********************************************************************************************************************************************************************
 //*********************************************************************************************************************************************************************
@@ -213,9 +214,9 @@ function addTrackPointToDB(position) {
 function addPhotoToDB(journey_id, position, photo_uri) {
 // function addPhotoToDB(position, photo_uri) {
     if(currentJourney){ //Force a current journey value, so that null journeys are not stored in db.
-        db.transaction(function(transaction){ //The SQL var is the sql string statement, in place of populateDB.
+        db.transaction(function(tx){ //The SQL var is the sql string statement, in place of populateDB.
             SQL = 'INSERT INTO PhotoPoints (journey_id, lat, lon, timestamp, uri) VALUES (?, ?, ?, ?, ?)';
-            transaction.executeSql(SQL, [currentJourney, position.coords.latitude, position.coords.longitude, position.timestamp, photo_uri]);
+            tx.executeSql(SQL, [currentJourney, position.coords.latitude, position.coords.longitude, position.timestamp, photo_uri]);
             console.log("currentJourney:" + currentJourney + " Adding photo point: " + position.coords.latitude + ", " + position.coords.longitude + "," + photo_uri);
         }, errorCB, successCB);
     }else{
@@ -228,3 +229,25 @@ function addPhotoToDB(journey_id, position, photo_uri) {
     //     tx.executeSql('INSERT INTO Journey (name, start) VALUES ("' + journeyName + '", ' + Date.now() + ')'); //Insert Journet name and current time.
     //     tx.executeSql('INSERT INTO Tracks (latitude, longitude, timestamp) VALUES ("' + journeyName + '", ' + Date.now() + ')'); //Insert Journet name and current time.
     // }, errorCB, successCB);
+
+
+function getAllPhotos() {
+    function log_results(tx,results) {
+        console.log("Photos in db (" + results.rows.length + ")");
+        for (var i = 0; i < results.rows.length; i++) {
+            var item = results.rows.item(i);
+            console.log("Photo info");
+            console.log(item.id + ", " + item.journey_id + ", " + item.uri);
+        }
+
+    }
+
+    function get_photo_query(transaction) {
+        SQL = "SELECT * FROM PhotoPoints;";
+        transaction.executeSql(SQL, [], log_results);
+    }
+
+    db.transaction(get_photo_query, function(err) {console.log(err.message);},
+        function() {console.log("Get photo query transaction success")});
+}
+
