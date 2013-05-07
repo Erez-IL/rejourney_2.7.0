@@ -28,9 +28,6 @@ $('#rejourney').on('pageshow', function(){
         // Apply the line to the map
         journeyPath.setMap(map);
     }
-
-
-
     // // Plot the GPS entries from photos as a circles on the Google Map
     // var photoMarkers = new google.maps.SymbolPath.CIRCLE({  //var photoMarkers = new google.maps.Marker({
     //   path: photoCoords,
